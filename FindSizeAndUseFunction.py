@@ -103,9 +103,7 @@ def create_nn(spn_struct, nn_struct):
    
 
 
-
-
-
+#Takes a SPN and finds the sizes of the weights and the total number of values needed
 def get_spn_layer_sizes(spn):
 
     spn_struct = [] #for storing the shape of the DCSPN
@@ -114,8 +112,6 @@ def get_spn_layer_sizes(spn):
     #print(spn.layers_graph["children"][0])
     #previous_layer = spn.layers_graph["children"][0]
 
-
-    
 
     #variables necessary to calculate size of layers
     forward_input = spn.inputs
@@ -138,11 +134,6 @@ def get_spn_layer_sizes(spn):
         if isinstance(curr_layer, LeafLayer):
             children_output_shape = spn.input_shape
             children_output = forward_input
-
-
-
-
-
 
 
         if isinstance(curr_layer, ProductLayer):
@@ -212,10 +203,6 @@ def get_spn_layer_sizes(spn):
             print(spn_struct)
 
 
-
-
-
-
         #Prepare values for the next loop
         curr_layer_output = children_output_shape
         curr_layer_output_shape = curr_layer.compute_output_shape(
@@ -282,7 +269,6 @@ def define_SPN():
 
 
 
-
     #the pool window is used by the product layer
     #the size of the pooling window setermines which pixels will be filtered together
     #The size of the pooling window determines the width and height of the new tensor that is produced
@@ -334,14 +320,6 @@ def define_SPN():
     forward = None
 
 
-
-    print("################################")
-    print(spn_model)
-
-
-
-
-
     spn_model.leaf_layer.means = leaf_means
     spn_model.leaf_layer.stds = leaf_stds
 
@@ -354,45 +332,13 @@ def define_SPN():
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ########################################TLNN#####################################################
 batch_size = 128
 epochs = 2
 
 
-
-
 weightSize1 = 31370
 weightSize2 = 10
-
-
-
 
 
 # input image dimensions
@@ -420,13 +366,6 @@ train_labels = tf.keras.utils.to_categorical(train_labels, weightSize1)
 test_labels = tf.keras.utils.to_categorical(test_labels, weightSize1)
 
 
-
-
-
-
-
-
-
 sess = tf.Session()
 
 
@@ -434,12 +373,7 @@ sess = tf.Session()
 print("\n##########################################################################################################\n")
 
 
-
-
-
 ###############################################DCSPN###########################################################
-
-
 
 
 reuse = 0
@@ -567,18 +501,11 @@ feed_means_stds = {
 
 
 
-
-
-
 #the fit function is what does the actual learning. It will perform a forward pass then perform gradiaent decent
 #This loop will repeat within the function for the specified number of epochs
 #The costs returned is the error over time, in other words, how different the produced images are from the correct image
 #The cost is Negative Log-Likelihood(NLL)
 spn.fit(train_data=train_imgs, epochs=2, add_to_feed=feed_means_stds, minibatch_size=64)
-
-
-
-
 
 
 #MPE is Most Probable Explanation
@@ -609,14 +536,6 @@ mpe_leaf = spn.build_mpe_leaf(backward_masks, replace_marg_vars=spn_input)
 
 
 
-#print(spn.inputs.eval(session=sess))
-#print(spn.inputs[forward_input]["output"])
-
-
-#Form a hold variable for the leaf means and standard deviation
-
-
-
 #perform the forward inference, getting the value that ends up in the root
 root_values = spn.forward_inference(
     forward, eval_data_marg, add_to_feed=feed_means_stds,
@@ -627,17 +546,6 @@ root_value = -1.0 * np.mean(root_values)
 print('{"metric": "Val NLL", "value": %f}' % (root_value))
 
 
-
-
-
-
-
-
-
-
-
-
-#BELOW HERE JUST OUTPUTTING IMAGE
 
 
 #get the MPE 
@@ -656,30 +564,9 @@ unorm_eval_data = test_imgs
 
 
 
-
-
-
-# MSE is Mean Squared Error
-print("Computing Mean Square Error")
-
 #where the images will be saved too, must already have the folder toy inside the folder outputs
 save_imgs_path = "outputs/toy"
 
-#Get the mean squared error
-#mse = Database.mean_square_error(
-#    mpe_assignment, unorm_eval_data, save_imgs_path=save_imgs_path)
-
-#print("MSE: {}".format(mse))
-
-
-
-
-
-
-
-
-#mpe_assignment, unorm_eval_data, save_imgs_path=save_imgs_path
-#def mean_square_error(data, data_target, save_imgs_path=None):
 
 
 # MSE needs data as 2D images
@@ -714,32 +601,6 @@ log_mse.close()
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #This just prints some information about the DCSPN
 print("\n\n\nNOW THE DIMENSIONS")
 print("layer 0- leaf layer")
@@ -761,24 +622,3 @@ print("\nlayer 3- root layer")
 print(spn.layers[3])
 #print(spn.layers[3].shape)
 print(spn.layers[3].weights)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
